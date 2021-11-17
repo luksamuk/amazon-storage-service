@@ -4651,7 +4651,7 @@ begin
 
     sb.Append(LogXMLSuffix);
 
-    Result := sb.ToString(True);
+    Result := sb.ToString;
   finally
     sb.Free;
   end;
@@ -4738,7 +4738,7 @@ begin
     end;
 
     sb.Append('</AccessControlList></AccessControlPolicy>');
-    Result := sb.ToString(True);
+    Result := sb.ToString;
   finally
     sb.Free;
   end;
@@ -5101,7 +5101,7 @@ begin
     end;
 
     sb.Append('</NotificationConfiguration>');
-    Result := sb.ToString(True);
+    Result := sb.ToString;
   finally
     sb.Free;
   end;
@@ -6531,7 +6531,7 @@ begin
       sb.Append('BucketOwner');
     sb.Append('</Payer></RequestPaymentConfiguration>');
 
-    xml := sb.ToString(True);
+    xml := sb.ToString;
   finally
     sb.Free;
   end;
@@ -6605,7 +6605,7 @@ begin
       sb.Append('Disabled');
     sb.Append('</MfaDelete></VersioningConfiguration>');
 
-    xml := sb.ToString(True);
+    xml := sb.ToString;
   finally
     sb.Free;
   end;
@@ -7484,7 +7484,7 @@ begin
       sb.Append(Part.AsXML);
     sb.Append('</CompleteMultipartUpload>');
 
-    xml := sb.ToString(True);
+    xml := sb.ToString;
   finally
     sb.Free;
   end;
