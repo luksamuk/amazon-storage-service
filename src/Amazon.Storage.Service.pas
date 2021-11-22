@@ -22,9 +22,9 @@ type
     function GetBucket(const ABucketName: string): TAmazonBucketResult;
     procedure CreateBucket(const ABucketName: string);
     procedure DeleteBucket(const ABucketName: string);
-    procedure UploadFile(const AFilePath: string); overload;
-    procedure UploadFile(const AFilePath, AFileName: string); overload;
-    procedure UploadFile(const AFile: TMemoryStream; AFileName: string); overload;
+    procedure UploadFile(const AFilePath: string; const ContentType: string = ''); overload;
+    procedure UploadFile(const AFilePath, AFileName: string; const ContentType: string = ''); overload;
+    procedure UploadFile(const AFile: TMemoryStream; const AFileName: string; const ContentType: string = ''); overload;
     procedure DeleteFile(const AFileName: string);
     constructor Create(const ABucketName: string);
   public
@@ -36,7 +36,7 @@ implementation
 
 uses Winapi.Windows;
 
-procedure TAmazonStorageService.UploadFile(const AFilePath, AFileName: string);
+procedure TAmazonStorageService.UploadFile(const AFilePath, AFileName, ContentType: string);
 var
   LBinaryReader: TBinaryReader;
   LFileContent: TBytes;
@@ -60,8 +60,8 @@ begin
     LFileInformation := TStringList.Create;
     LResponseInfo := TCloudResponseInfo.Create;
     try
-      LFileInformation.Add('Content-type=' + GetFileContentType(AFilePath));
-      if not FStorage.UploadObject(FBucketName, AFileName, LFileContent, False, LFileInformation, nil,
+      LFileInformation.Add('Content-Type=' + GetFileContentType(AFilePath));
+      if not FStorage.UploadObject(FBucketName, AFileName, LFileContent, ContentType, False, LFileInformation, nil,
          TAmazonACLType.amzbaPrivate, LResponseInfo) then
         raise Exception.CreateFmt('%d - %s', [LResponseInfo.StatusCode, LResponseInfo.StatusMessage]);
     finally
@@ -74,7 +74,7 @@ begin
   end;
 end;
 
-procedure TAmazonStorageService.UploadFile(const AFile: TMemoryStream; AFileName: string);
+procedure TAmazonStorageService.UploadFile(const AFile: TMemoryStream; const AFileName: string; const ContentType: string);
 var
   LFilePath: string;
   LTempFolder: array[0..MAX_PATH] of Char;
@@ -84,16 +84,16 @@ begin
   try
     AFile.Position := 0;
     AFile.SaveToFile(LFilePath);
-    Self.UploadFile(LFilePath, AFileName);
+    Self.UploadFile(LFilePath, AFileName, ContentType);
   finally
     if FileExists(LFilePath) then
       DeleteFile(LFilePath);
   end;
 end;
 
-procedure TAmazonStorageService.UploadFile(const AFilePath: string);
+procedure TAmazonStorageService.UploadFile(const AFilePath, ContentType: string);
 begin
-  Self.UploadFile(AFilePath, ExtractFileName(AFilePath));
+  Self.UploadFile(AFilePath, ExtractFileName(AFilePath), ContentType);
 end;
 
 function TAmazonStorageService.Configuration: TAmazonStorageServiceConfig;

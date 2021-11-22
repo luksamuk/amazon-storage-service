@@ -2104,6 +2104,7 @@ type
     /// <param name="BucketName">The name of the bucket the object is in.</param>
     /// <param name="ObjectName">The name to use for the object being uploaded.</param>
     /// <param name="Content">The Object's content, in bytes.</param>
+    /// <param name="ContentType">Explicit object's content type, if required.</param>
     /// <param name="ReducedRedundancy">True to use REDUCED_REDUNDANCY as the object's storage class.</param>
     /// <param name="Metadata">The optional metadata to set on the object, or nil.</param>
     /// <param name="Headers">Optional request headers to use. See remarks.</param>
@@ -2111,7 +2112,10 @@ type
     /// <param name="ResponseInfo">The optional class for storing response info into</param>
     /// <param name="BucketRegion">The region of the bucket</param>
     /// <returns>True if the request was successful, false otherwise.</returns>
-    function UploadObject(const BucketName, ObjectName: string; Content: TArray<Byte>; ReducedRedundancy: Boolean = false;
+    function UploadObject(const BucketName, ObjectName: string;
+                          Content: TArray<Byte>;
+                          ContentType: String = '';
+                          ReducedRedundancy: Boolean = false;
                           Metadata: TStrings = nil;
                           Headers: TStrings = nil; ACL: TAmazonACLType = amzbaPrivate;
                           ResponseInfo: TCloudResponseInfo = nil;
@@ -7009,7 +7013,7 @@ begin
 end;
 
 function TAmazonStorageService.UploadObject(const BucketName, ObjectName: string;
-  Content: TArray<Byte>; ReducedRedundancy: Boolean; Metadata, Headers: TStrings;
+  Content: TArray<Byte>; ContentType: String; ReducedRedundancy: Boolean; Metadata, Headers: TStrings;
   ACL: TAmazonACLType; ResponseInfo: TCloudResponseInfo; BucketRegion: TAmazonRegion): Boolean;
 var
   url: string;
@@ -7032,6 +7036,9 @@ begin
     LHeaders.Values['x-amz-storage-class'] := CLASS_REDUCED_REDUNDANCY;
 
   LHeaders.Values['x-amz-acl'] := GetACLTypeString(ACL);
+
+  if ContentType <> '' then  
+    LHeaders.Values['Content-Type'] := ContentType;
 
   if Headers <> nil then
     AddAndValidateHeaders(LHeaders,Headers);
